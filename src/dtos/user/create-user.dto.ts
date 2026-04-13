@@ -1,5 +1,5 @@
-import { RegisterUserDto } from './register-user.dto';
+import { RegisterUserDto } from "./register-user.dto";
 
-export type CreateUserDto = Omit<RegisterUserDto, 'password'> & {
+export type CreateUserDto = Omit<RegisterUserDto, "password"> & {
   passwordHash: string;
 };
