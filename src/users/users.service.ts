@@ -15,16 +15,12 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findAll() {
+  async findAll() { //user search in future
     return await this.userRepository.find();
   }
 
   async findUserById(id: string) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException();
-    }
-    return user;
+    return await this.userRepository.findOne({ where: { id } });
   }
 
   async findUserByEmail(email: string) {
