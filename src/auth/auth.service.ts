@@ -17,10 +17,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async findAll() {
-    return await this.usersService.findAll();
-  }
-
   async register(registerUserDto: RegisterUserDto) {
     const passwordHash = await argon2.hash(registerUserDto.password, {
       type: argon2.argon2id,

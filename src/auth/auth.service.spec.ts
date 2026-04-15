@@ -194,16 +194,4 @@ describe("AuthService", () => {
       );
     });
   });
-
-  describe("findAll", () => {
-    it("should return all users", async () => {
-      const mockUsers = [mockUser];
-      usersService.findAll.mockResolvedValue(mockUsers);
-
-      const result = await service.findAll();
-
-      expect(usersService.findAll).toHaveBeenCalled();
-      expect(result).toEqual(mockUsers);
-    });
-  });
 });

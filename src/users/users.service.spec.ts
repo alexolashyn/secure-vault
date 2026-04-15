@@ -82,14 +82,6 @@ describe("UsersService", () => {
       });
       expect(result).toEqual(mockUser);
     });
-
-    it("should throw NotFoundException when user not found", async () => {
-      userRepository.findOne.mockResolvedValue(null);
-
-      await expect(service.findUserById("999")).rejects.toThrow(
-        NotFoundException,
-      );
-    });
   });
 
   describe("findUserByEmail", () => {

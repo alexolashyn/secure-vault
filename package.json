@@ -24,7 +24,7 @@
     "migration:generate": "npm run build && typeorm-ts-node-commonjs migration:generate src/db/migrations/$NAME -d dist/db/data-source.js",
     "migration:run": "typeorm migration:run -d dist/db/data-source.js",
     "migration:revert": "typeorm migration:revert -d dist/db/data-source.js",
-    "prepare": "husky"
+    "prepare": "husky && husky install"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -61,7 +61,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
-    "husky": "^9.1.7",
+    "husky": "^9.0.0",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",

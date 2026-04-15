@@ -38,9 +38,4 @@ export class AuthController {
   async getProfile(@CurrentUser() user: AuthUser) {
     return user;
   }
-
-  @Get()
-  asyncFindAll() {
-    return this.authService.findAll();
-  }
 }
