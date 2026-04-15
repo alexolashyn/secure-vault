@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, Get, Param, ParseUUIDPipe } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  Param,
+  ParseUUIDPipe,
+} from "@nestjs/common";
 import { FilesService } from "./files.service";
 import { JwtGuard } from "../guards/jwt.guard";
 import { CurrentUser } from "../decorators/current-user.decorator";
@@ -47,10 +55,15 @@ export class FilesController {
   @Post("share/:fileId")
   async shareFile(
     @CurrentUser() owner: AuthUser,
-    @Body() body: { userId: string, encryptedFileKey: string },
+    @Body() body: { userId: string; encryptedFileKey: string },
     @Param("fileId", new ParseUUIDPipe()) fileId: string,
   ) {
     const { userId, encryptedFileKey } = body;
-    return this.filesService.shareFile(userId, encryptedFileKey, fileId, owner.id);
+    return this.filesService.shareFile(
+      userId,
+      encryptedFileKey,
+      fileId,
+      owner.id,
+    );
   }
 }

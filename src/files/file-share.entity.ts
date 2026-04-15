@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, Column } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  Column,
+} from "typeorm";
 import { User } from "../users/user.entity";
 import { FileEntity } from "./file.entity";
 @Entity("file_shares")

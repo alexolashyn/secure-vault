@@ -204,7 +204,10 @@ describe("FilesService", () => {
     });
 
     it("should successfully create download request for shared file", async () => {
-      const mockFileShare = { id: "share-1", encryptedFileKey: "shared_key" } as any;
+      const mockFileShare = {
+        id: "share-1",
+        encryptedFileKey: "shared_key",
+      } as any;
       fileRepository.findOne.mockResolvedValue(mockFile);
       fileShareRepository.findOne.mockResolvedValue(mockFileShare);
       minioService.getPresignedUrlForDownload.mockResolvedValue("download_url");
@@ -282,7 +285,12 @@ describe("FilesService", () => {
       fileShareRepository.create.mockReturnValue(mockFileShare);
       fileShareRepository.save.mockResolvedValue(mockFileShare);
 
-      const result = await service.shareFile("user-2", "test_value", "file-1", "user-1");
+      const result = await service.shareFile(
+        "user-2",
+        "test_value",
+        "file-1",
+        "user-1",
+      );
 
       expect(usersService.findUserById).toHaveBeenCalledWith("user-2");
       expect(fileRepository.findOne).toHaveBeenCalledWith({
@@ -327,7 +335,9 @@ describe("FilesService", () => {
     it("should throw BadRequestException when file already shared with user", async () => {
       usersService.findUserById.mockResolvedValue(mockUser);
       fileRepository.findOne.mockResolvedValue(mockFile);
-      fileShareRepository.findOne.mockResolvedValue({ id: "existing-share" } as any);
+      fileShareRepository.findOne.mockResolvedValue({
+        id: "existing-share",
+      } as any);
 
       await expect(
         service.shareFile("user-2", "test_value", "file-1", "user-1"),

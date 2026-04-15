@@ -22,7 +22,7 @@ export class FilesService {
     private readonly fileShareRepository: Repository<FileShare>,
     private readonly minioService: MinioService,
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
   async findFileById(fileId: string) {
     return await this.fileRepository.findOne({ where: { id: fileId } });
@@ -36,7 +36,12 @@ export class FilesService {
     return file;
   }
 
-  async shareFile(userId: string, encryptedFileKey: string, fileId: string, ownerId: string) {
+  async shareFile(
+    userId: string,
+    encryptedFileKey: string,
+    fileId: string,
+    ownerId: string,
+  ) {
     const user = await this.usersService.findUserById(userId);
     if (!user) {
       throw new NotFoundException("User is not found");
@@ -54,7 +59,7 @@ export class FilesService {
     const existingShare = await this.fileShareRepository.findOne({
       where: {
         file: { id: fileId },
-        user: { id: userId }
+        user: { id: userId },
       },
     });
     if (existingShare) {
@@ -65,7 +70,7 @@ export class FilesService {
       encryptedFileKey,
       file: { id: fileId },
       user: { id: userId },
-      sharedBy: { id: ownerId }
+      sharedBy: { id: ownerId },
     });
 
     return await this.fileShareRepository.save(fileShare);
@@ -85,7 +90,7 @@ export class FilesService {
       order: { createdAt: "DESC" },
     });
 
-    return sharedEntities.map(entity => entity.file);
+    return sharedEntities.map((entity) => entity.file);
   }
 
   async createUploadRequest(

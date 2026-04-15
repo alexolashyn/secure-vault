@@ -15,7 +15,8 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findAll() { //user search in future
+  async findAll() {
+    //user search in future
     return await this.userRepository.find();
   }
 
