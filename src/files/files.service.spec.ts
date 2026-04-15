@@ -171,7 +171,7 @@ describe("FilesService", () => {
       const result = await service.createDownloadRequest("user-1", "file-1");
 
       expect(fileRepository.findOne).toHaveBeenCalledWith({
-        where: { id: "file-1", owner: { id: "user-1" } },
+        where: { id: "file-1" },
       });
       expect(minioService.getPresignedUrlForDownload).toHaveBeenCalledWith(
         "uuid-path",
@@ -180,6 +180,7 @@ describe("FilesService", () => {
       expect(result).toEqual({
         downloadUrl: "download_url",
         file: mockFile,
+        sharedEncryptedFileKey: undefined,
       });
     });
 
@@ -256,7 +257,7 @@ describe("FilesService", () => {
       fileShareRepository.create.mockReturnValue(mockFileShare);
       fileShareRepository.save.mockResolvedValue(mockFileShare);
 
-      const result = await service.shareFile("user-2", "file-1", "user-1");
+      const result = await service.shareFile("user-2", "test_value", "file-1", "user-1");
 
       expect(usersService.findUserById).toHaveBeenCalledWith("user-2");
       expect(fileRepository.findOne).toHaveBeenCalledWith({
@@ -266,6 +267,7 @@ describe("FilesService", () => {
         where: { file: { id: "file-1" }, user: { id: "user-2" } },
       });
       expect(fileShareRepository.create).toHaveBeenCalledWith({
+        encryptedFileKey: "test_value",
         file: { id: "file-1" },
         user: { id: "user-2" },
         sharedBy: { id: "user-1" },
@@ -278,10 +280,10 @@ describe("FilesService", () => {
       usersService.findUserById.mockResolvedValue(null);
 
       await expect(
-        service.shareFile("user-999", "file-1", "user-1"),
+        service.shareFile("user-999", "test_value", "file-1", "user-1"),
       ).rejects.toThrow(NotFoundException);
       await expect(
-        service.shareFile("user-999", "file-1", "user-1"),
+        service.shareFile("user-999", "test_value", "file-1", "user-1"),
       ).rejects.toThrow("User is not found");
     });
 
@@ -290,10 +292,10 @@ describe("FilesService", () => {
       fileRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.shareFile("user-2", "file-999", "user-1"),
+        service.shareFile("user-2", "test_value", "file-999", "user-1"),
       ).rejects.toThrow(NotFoundException);
       await expect(
-        service.shareFile("user-2", "file-999", "user-1"),
+        service.shareFile("user-2", "test_value", "file-999", "user-1"),
       ).rejects.toThrow("File is not found");
     });
 
@@ -303,10 +305,10 @@ describe("FilesService", () => {
       fileShareRepository.findOne.mockResolvedValue({ id: "existing-share" } as any);
 
       await expect(
-        service.shareFile("user-2", "file-1", "user-1"),
+        service.shareFile("user-2", "test_value", "file-1", "user-1"),
       ).rejects.toThrow(BadRequestException);
       await expect(
-        service.shareFile("user-2", "file-1", "user-1"),
+        service.shareFile("user-2", "test_value", "file-1", "user-1"),
       ).rejects.toThrow("File is already shared with this user");
     });
   });
@@ -322,10 +324,10 @@ describe("FilesService", () => {
 
       expect(fileShareRepository.find).toHaveBeenCalledWith({
         where: { user: { id: "user-1" } },
-        relations: ["file", "file.owner"],
+        relations: ["file"],
         order: { createdAt: "DESC" },
       });
-      expect(result).toEqual(mockSharedFiles);
+      expect(result).toEqual([mockFile]);
     });
 
     it("should return empty array when no shared files", async () => {
