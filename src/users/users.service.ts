@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Like } from "typeorm";
 import { User } from "./user.entity";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "../dtos/user/create-user.dto";
@@ -46,5 +47,9 @@ export class UsersService {
       throw new NotFoundException("User not found");
     }
     return user.publicKey;
+  }
+
+  async emailSearch(query: string) {
+    return this.userRepository.find({ where: { email: Like(`${query}%`) } });
   }
 }

@@ -11,4 +11,10 @@ export class UsersController {
   async getPublicKey(@Param("userId") userId: string) {
     return this.usersService.getPublicKey(userId);
   }
+
+  @UseGuards(JwtGuard)
+  @Get("search/:query")
+  async emailSearch(@Param("query") query: string) {
+    return this.usersService.emailSearch(query);
+  }
 }
