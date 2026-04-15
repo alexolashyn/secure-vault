@@ -38,4 +38,12 @@ export class UsersService {
     const user = this.userRepository.create(createUserDto);
     return this.userRepository.save(user);
   }
+
+  async getPublicKey(userId: string) {
+    const user = await this.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    return user.publicKey;
+  }
 }

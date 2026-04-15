@@ -18,10 +18,8 @@ export class FilesService {
   constructor(
     @InjectRepository(FileEntity)
     private readonly fileRepository: Repository<FileEntity>,
-
-    @ InjectRepository(FileShare)
+    @InjectRepository(FileShare)
     private readonly fileShareRepository: Repository<FileShare>,
-
     private readonly minioService: MinioService,
     private readonly usersService: UsersService,
   ) { }
@@ -38,10 +36,14 @@ export class FilesService {
     return file;
   }
 
-  async shareFile(userId: string, fileId: string, ownerId: string) {
+  async shareFile(userId: string, encryptedFileKey: string, fileId: string, ownerId: string) {
     const user = await this.usersService.findUserById(userId);
     if (!user) {
       throw new NotFoundException("User is not found");
+    }
+
+    if (user.id === ownerId) {
+      throw new BadRequestException("You cannot share a file with yourself");
     }
 
     const file = await this.findFileById(fileId);
@@ -50,17 +52,17 @@ export class FilesService {
     }
 
     const existingShare = await this.fileShareRepository.findOne({
-      where: { 
-        file: { id: fileId }, 
-        user: { id: userId } 
+      where: {
+        file: { id: fileId },
+        user: { id: userId }
       },
     });
-
     if (existingShare) {
       throw new BadRequestException("File is already shared with this user");
     }
 
     const fileShare = this.fileShareRepository.create({
+      encryptedFileKey,
       file: { id: fileId },
       user: { id: userId },
       sharedBy: { id: ownerId }
@@ -77,18 +79,13 @@ export class FilesService {
   }
 
   async findSharedFiles(userId: string) {
-    return await this.fileShareRepository.find({
+    const sharedEntities = await this.fileShareRepository.find({
       where: { user: { id: userId } },
-      relations: ["file", "file.owner"],
+      relations: ["file"],
       order: { createdAt: "DESC" },
     });
-  }
 
-  async findFiles(userId: string) {
-    const ownedFiles = await this.findFilesForOwner(userId);
-    const sharedFiles = await this.findSharedFiles(userId);
-    const sharedFileEntities = sharedFiles.map(share => share.file);
-    return [...ownedFiles, ...sharedFileEntities];
+    return sharedEntities.map(entity => entity.file);
   }
 
   async createUploadRequest(
@@ -105,8 +102,8 @@ export class FilesService {
         owner: { id: userId },
         encryptedFileKey,
         fileIv,
-        mimeType: uploadRequestDto.mimeType,
-        size: uploadRequestDto.size,
+        mimeType: uploadRequestDto?.mimeType,
+        size: uploadRequestDto?.size,
       });
 
       const uploadUrl =
@@ -125,12 +122,15 @@ export class FilesService {
   async createDownloadRequest(userId: string, fileId: string) {
     try {
       const file = await this.fileRepository.findOne({
-        where: { id: fileId, owner: { id: userId } },
+        where: { id: fileId },
       });
-
       if (!file) {
         throw new NotFoundException("File is not found");
       }
+
+      const isSharedFile = await this.fileShareRepository.findOne({
+        where: { file: { id: fileId }, user: { id: userId } },
+      });
 
       return {
         downloadUrl: await this.minioService.getPresignedUrlForDownload(
@@ -138,6 +138,7 @@ export class FilesService {
           file.name,
         ),
         file,
+        sharedEncryptedFileKey: isSharedFile?.encryptedFileKey,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {

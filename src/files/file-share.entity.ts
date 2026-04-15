@@ -8,13 +8,16 @@ export class FileShare {
 
   @CreateDateColumn()
   createdAt: Date;
- 
+
   @Column({ nullable: true })
   expiresAt: Date;
 
+  @Column()
+  encryptedFileKey: string;
+
   @ManyToOne(() => FileEntity, { onDelete: "CASCADE" })
   file: FileEntity;
- 
+
   @ManyToOne(() => User, { onDelete: "CASCADE" })
   user: User;
 
