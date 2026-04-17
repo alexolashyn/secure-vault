@@ -8,6 +8,12 @@ import {
 } from "typeorm";
 import { User } from "../users/user.entity";
 
+export enum FILE_STATUS {
+  PENDING = "pending",
+  SUCCESS = "success",
+  FAILED = "failed",
+}
+
 @Entity("files")
 export class FileEntity {
   @PrimaryGeneratedColumn("uuid")
@@ -30,6 +36,9 @@ export class FileEntity {
 
   @Column({ type: "bigint", default: 0 })
   size: number;
+
+  @Column({ type: "enum", enum: FILE_STATUS, default: FILE_STATUS.PENDING })
+  status: FILE_STATUS;
 
   @CreateDateColumn()
   createdAt: Date;
