@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import { UploadRequestDto } from "../dtos/file/upload-request.dto";
 import { UsersService } from "../users/users.service";
 import { FileShare } from "./file-share.entity";
+import { FILE_STATUS } from "./file.entity";
 
 @Injectable()
 export class FilesService {
@@ -78,7 +79,7 @@ export class FilesService {
 
   async findFilesForOwner(userId: string) {
     return await this.fileRepository.find({
-      where: { owner: { id: userId } },
+      where: { owner: { id: userId }, status: FILE_STATUS.SUCCESS },
       order: { createdAt: "DESC" },
     });
   }
@@ -90,7 +91,18 @@ export class FilesService {
       order: { createdAt: "DESC" },
     });
 
-    return sharedEntities.map((entity) => entity.file);
+    return sharedEntities
+      .map((entity) => {
+        if (entity.file.status !== FILE_STATUS.SUCCESS) {
+          return null;
+        }
+        return entity.file;
+      })
+      .filter((file) => file !== null);
+  }
+
+  async updateFileStatus(fileId: string, status: FILE_STATUS) {
+    return await this.fileRepository.update(fileId, { status });
   }
 
   async createUploadRequest(

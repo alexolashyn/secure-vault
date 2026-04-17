@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
 } from "@nestjs/common";
 import { FilesService } from "./files.service";
 import { JwtGuard } from "../guards/jwt.guard";
@@ -15,6 +16,7 @@ import { UploadRequestDto } from "../dtos/file/upload-request.dto";
 import { TransformResponse } from "../decorators/transform-response.decorator";
 import { UploadUrlResponseDto } from "../dtos/file/upload-url-response.dto";
 import { FileOwnerGuard } from "src/guards/file-owner.guar";
+import { FILE_STATUS } from "./file.entity";
 
 @Controller("files")
 @UseGuards(JwtGuard)
@@ -31,6 +33,15 @@ export class FilesController {
       user.id,
       uploadRequestDto,
     );
+  }
+
+  @UseGuards(FileOwnerGuard)
+  @Patch("status/:fileId")
+  async updateFileStatus(
+    @Param("fileId", new ParseUUIDPipe()) fileId: string,
+    @Body() body: { status: FILE_STATUS },
+  ) {
+    return await this.filesService.updateFileStatus(fileId, body.status);
   }
 
   @Get("download-request/:id")
