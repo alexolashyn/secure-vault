@@ -8,6 +8,7 @@ import { MinioService } from "../minio/minio.service";
 import { UploadRequestDto } from "../dtos/file/upload-request.dto";
 import { UsersService } from "../users/users.service";
 import { FileShare } from "./file-share.entity";
+import { FILE_STATUS } from "./file.entity";
 
 describe("FilesService", () => {
   let service: FilesService;
@@ -27,6 +28,7 @@ describe("FilesService", () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     owner: {} as any,
+    status: FILE_STATUS.SUCCESS,
   };
 
   const mockRepository = {
@@ -98,7 +100,7 @@ describe("FilesService", () => {
       const result = await service.findFilesForOwner("user-1");
 
       expect(fileRepository.find).toHaveBeenCalledWith({
-        where: { owner: { id: "user-1" } },
+        where: { owner: { id: "user-1" }, status: FILE_STATUS.SUCCESS },
         order: { createdAt: "DESC" },
       });
       expect(result).toEqual(mockFiles);
